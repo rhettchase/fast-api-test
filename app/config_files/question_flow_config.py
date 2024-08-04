@@ -1,5 +1,3 @@
-# question_flow_config.py
-
 # Define a dictionary to map question IDs to next question logic based on response
 QUESTION_FLOW = {
     1: {  # Question ID 1: "Do you live in Georgia?"
