@@ -4,6 +4,7 @@ from typing import List, Union, Dict
 class QuestionBase(BaseModel):
     text: str
     options: List[str]
+    
 
 class QuestionCreate(QuestionBase):
     pass

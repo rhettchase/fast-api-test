@@ -1,12 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Union
 from ...db.repository import get_question, create_question, save_answer, get_db, get_all_questions
-from ...services.questionnaire_service import get_next_question
+from ...services.questionnaire_service import QuestionnaireService
 from ...schemas.questionnaire import QuestionCreate, Question, AnswerCreate, Answer
 from ...db.models import Question as DBQuestion
+from app.config_files.question_flow_config import QUESTION_FLOW
 
 router = APIRouter()
+
+# Initialize the questionnaire service
+questionnaire_service = QuestionnaireService(QUESTION_FLOW)
 
 @router.post("/questions/", response_model=Question)
 async def create_question_api(question: QuestionCreate, db: Session = Depends(get_db)):
@@ -29,9 +33,17 @@ async def list_questions(db: Session = Depends(get_db)):
 async def create_answer_api(answer: AnswerCreate, db: Session = Depends(get_db)):
     return save_answer(db, answer)
 
-@router.post("/next-question/", response_model=Question)
+@router.post("/next-question/", response_model=Union[Question, str])
 async def next_question(answer: AnswerCreate, db: Session = Depends(get_db)):
-    next_question = get_next_question(db, answer)
-    if not next_question:
-        raise HTTPException(status_code=404, detail="No further questions")
-    return next_question
+    service = QuestionnaireService(QUESTION_FLOW)
+    next_question_id = service.get_next_question(answer.question_id, answer.response)
+
+    if isinstance(next_question_id, int):
+        next_question = get_question(db, next_question_id)
+        if not next_question:
+            raise HTTPException(status_code=404, detail="Next question not found")
+        return next_question
+
+    # Return a string if there are no more questions or an invalid response
+    return {"message": next_question_id}
+
