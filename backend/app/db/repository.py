@@ -4,6 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from app.config import DATABASE_URL
 from .models import Question, Answer
 from ..schemas.questionnaire import QuestionCreate
+from typing import List, Union, Dict
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -34,7 +35,7 @@ def create_question(db: Session, question: QuestionCreate):
     db.refresh(db_question)
     return db_question
 
-def save_answer(db: Session, question_id: int, response: str):
+def save_answer(db: Session, question_id: int, response: Union[str, List[str], Dict[str, Union[str, int, bool]]]) -> Answer:
     db_answer = Answer(question_id=question_id, response=response)
     db.add(db_answer)
     db.commit()
