@@ -18,12 +18,13 @@ class Question(QuestionBase):
         
 class AnswerBase(BaseModel):
     question_id: int
-    response: Union[List[str], Dict[str, Union[str, int, bool]]] 
-    
-    model_config = ConfigDict(from_attributes=True) 
+    response: Union[str, List[str], Dict[str, Union[str, int, bool]]]
 
-class AnswerCreate(AnswerBase):
-    pass
+    model_config = ConfigDict(from_attributes=True)
+
+class AnswerCreate(BaseModel):
+    question_id: int
+    response: Union[str, List[str], Dict[str, Union[str, int, bool]]]
 
 class Answer(AnswerBase):
     id: int

@@ -18,13 +18,13 @@ export const fetchFormConfig = createAsyncThunk(
 // Submit user response
 export const submitUserResponse = createAsyncThunk(
   'form/submitResponse',
-  async ({ questionId, response }) => {
-    const res = await fetch(`http://localhost:8000/api/v1/answers`, {
+  async ({ question_id, response }) => {
+    const res = await fetch(`http://localhost:8000/api/v1/answers/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ question_id: questionId, response }),
+      body: JSON.stringify({ question_id, response }),
     });
     if (!res.ok) {
       throw new Error('Failed to submit response');
@@ -37,10 +37,9 @@ export const submitUserResponse = createAsyncThunk(
 const formSlice = createSlice({
   name: 'form',
   initialState: {
-    currentFormId: 1, // Or whatever logic you use to set this
-    formConfig: null,
+    currentFormId: 1,
+    formConfig: null, // Initially null
     message: '',
-    userResponse: null,
   },
   reducers: {
     setUserResponse(state, action) {
@@ -57,7 +56,8 @@ const formSlice = createSlice({
         state.message = 'Failed to load form configuration';
       })
       .addCase(submitUserResponse.fulfilled, (state, action) => {
-        state.message = action.payload.message || '';
+        state.message =
+          action.payload.message || 'Response submitted successfully';
       })
       .addCase(submitUserResponse.rejected, (state) => {
         state.message = 'Failed to submit response';

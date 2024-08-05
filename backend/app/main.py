@@ -1,6 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .api.v1 import questionnaire
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 app = FastAPI()
 

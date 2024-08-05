@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException
+import logging
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from typing import List, Union
 from ...db.repository import get_question, create_question, save_answer, get_db, get_all_questions
@@ -8,6 +9,7 @@ from ...db.models import Question as DBQuestion
 from app.config_files.question_flow_config import QUESTION_FLOW
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 # Initialize the questionnaire service
 questionnaire_service = QuestionnaireService(QUESTION_FLOW)
@@ -30,8 +32,12 @@ async def list_questions(db: Session = Depends(get_db)):
     return questions
 
 @router.post("/answers/", response_model=Answer)
-async def create_answer_api(answer: AnswerCreate, db: Session = Depends(get_db)):
-    return save_answer(db, answer)
+async def create_answer_api(request: Request, answer: AnswerCreate, db: Session = Depends(get_db)):
+    body = await request.json()
+    logger.info(f"Raw request body: {body}")  # Log the raw request body
+    logger.info(f"Received answer payload: question_id={answer.question_id} response={answer.response}")
+    db_answer = save_answer(db, answer.question_id, answer.response)
+    return db_answer
 
 @router.post("/next-question/", response_model=Union[Question, str])
 async def next_question(answer: AnswerCreate, db: Session = Depends(get_db)):

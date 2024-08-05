@@ -19,11 +19,17 @@ function DynamicForm() {
   }, [currentFormId, dispatch]);
 
   const handleSubmit = ({ formData }) => {
-    const questionId = Object.keys(formData)[0];
-    dispatch(setUserResponse({ questionId, response: formData[questionId] }));
-    dispatch(
-      submitUserResponse({ questionId, response: formData[questionId] })
-    );
+    const questionId = parseInt(
+      Object.keys(formData)[0].replace('question', '')
+    ); // Extract integer ID
+    const response = formData[`question${questionId}`]; // Access using template literal
+    const payload = {
+      question_id: questionId,
+      response: response,
+    };
+
+    console.log('Submitting payload:', payload); // Log the payload for debugging
+    dispatch(submitUserResponse(payload));
   };
 
   if (message) {
@@ -47,7 +53,7 @@ function DynamicForm() {
     }, {}),
   };
 
-  return <Form schema={schema} onSubmit={handleSubmit} validator={validator} />; // Pass the validator prop
+  return <Form schema={schema} onSubmit={handleSubmit} validator={validator} />;
 }
 
 export default DynamicForm;
