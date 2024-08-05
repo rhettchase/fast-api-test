@@ -12,7 +12,7 @@ QUESTION_FLOW = {
         },
         {
             "condition": lambda response: response.lower() == "no",
-            "next": 2
+            "message": "You're not eligible"
         }
     ],
     2: [
@@ -44,11 +44,21 @@ QUESTION_FLOW = {
 }
 
 def get_next_question_id(question_id: int, response: Any) -> Union[int, str]:
+    """
+    Evaluate the rules for a given question and response.
+
+    :param question_id: Current question ID
+    :param response: User's response to the question
+    :return: Next question ID or a message if applicable
+    """
     rules = QUESTION_FLOW.get(question_id, [])
     for rule in rules:
         if rule["condition"](response):
-            return rule.get("next") or rule.get("message", "No further questions")
-    return "No further questions"
+            if "next" in rule:
+                return rule["next"]
+            if "message" in rule:
+                return {"message": rule["message"]}
+    return {"message": "No valid rule found"}
 
 
 # QUESTION_FLOW = {

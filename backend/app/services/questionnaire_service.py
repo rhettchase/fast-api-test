@@ -18,8 +18,8 @@ class QuestionnaireService:
         """
         next_question = get_next_question_id(question_id, response)
         
-        if isinstance(next_question, str):
-            return {"message": next_question}
+        if isinstance(next_question, dict) and "message" in next_question:
+            return next_question
         
         return next_question
     

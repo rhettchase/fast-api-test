@@ -1,10 +1,10 @@
-// formSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 // Fetch form configuration
 export const fetchFormConfig = createAsyncThunk(
   'form/fetchConfig',
   async (formId) => {
+    if (formId === null) return null; // Skip fetching if formId is null
     const response = await fetch(
       `http://localhost:8000/api/v1/form-config/${formId}`
     );
@@ -64,10 +64,21 @@ const formSlice = createSlice({
     setUserResponse(state, action) {
       state.userResponse = action.payload;
     },
+    setMessage(state, action) {
+      state.message = action.payload;
+    },
+    clearFormConfig(state) {
+      state.formConfig = null;
+      state.currentFormId = null;
+    },
   },
   extraReducers: (builder) => {
     builder
       .addCase(fetchFormConfig.fulfilled, (state, action) => {
+        if (action.payload === null) {
+          state.formConfig = null;
+          return;
+        }
         state.formConfig = action.payload;
         state.message = '';
       })
@@ -82,22 +93,30 @@ const formSlice = createSlice({
         state.message = 'Failed to submit response';
       })
       .addCase(fetchNextQuestion.fulfilled, (state, action) => {
-        // Assume action.payload contains the new question structure
-        if (typeof action.payload === 'object' && action.payload.options) {
-          state.formConfig = {
-            title: 'Dynamic Questionnaire', // or any other title logic
-            fields: [
-              {
-                name: `question${action.payload.id}`,
-                type: 'string',
-                label: action.payload.text,
-                options: action.payload.options,
-              },
-            ],
-          };
-          state.message = '';
-        } else if (typeof action.payload === 'string') {
-          state.message = action.payload; // Set message when it's a string
+        const payload = action.payload;
+
+        if (typeof payload === 'object') {
+          if (payload.options) {
+            // If payload contains options, it's a new question
+            state.formConfig = {
+              title: 'Dynamic Questionnaire',
+              fields: [
+                {
+                  name: `question${payload.id}`,
+                  type: 'string',
+                  label: payload.text,
+                  options: payload.options,
+                },
+              ],
+            };
+            state.currentFormId = payload.id || state.currentFormId; // Update current form ID if valid
+            state.message = '';
+          } else if (payload.message) {
+            // If payload has a message, display it
+            state.message = payload.message;
+            state.formConfig = null; // Clear formConfig if no more questions
+            state.currentFormId = null; // Set currentFormId to null as there are no more questions
+          }
         }
       })
       .addCase(fetchNextQuestion.rejected, (state) => {
@@ -106,5 +125,5 @@ const formSlice = createSlice({
   },
 });
 
-export const { setUserResponse } = formSlice.actions;
+export const { setUserResponse, setMessage, clearFormConfig } = formSlice.actions;
 export default formSlice.reducer;
