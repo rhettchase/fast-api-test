@@ -47,3 +47,23 @@ async def next_question(answer: AnswerCreate, db: Session = Depends(get_db)):
     # Return a string if there are no more questions or an invalid response
     return {"message": next_question_id}
 
+@router.get("/form-config/{question_id}")
+async def get_form_config(question_id: int, db: Session = Depends(get_db)):
+    db_question = get_question(db, question_id)
+    if not db_question:
+        raise HTTPException(status_code=404, detail="Question not found")
+
+    # Transform the question into a form schema
+    form_config = {
+        "title": "Dynamic Questionnaire",
+        "fields": [
+            {
+                "name": f"question{db_question.id}",
+                "type": "string",  # Assume text input; adjust type as necessary
+                "label": db_question.text,
+                "options": db_question.options  # assuming db_question.options is a list
+            }
+        ]
+    }
+    return form_config
+
