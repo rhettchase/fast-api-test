@@ -2,13 +2,33 @@
 
 This repository contains a dynamic questionnaire application built using React for the frontend and FastAPI for the backend. The application allows users to answer a series of questions, with the subsequent question or message being determined by their previous responses.
 
+The purpose of this app is to demo the below architecture and test out building a custom rule-engine logic. This was designed with the below requirements in mind:
+
+1. *User experience* - Support responsive and intuitive user interface and dynamic questions; Accessibility Features baked in not bolted on, Mobile Friendly design easily achievable without major code refactor
+2. *Scalability* - Must handle 1 to n fields of information and more complex questions
+3. *Performance* - Cost efficient; enabling data consistency/validation and data retrieval; enables back-end logic to operate on clean and well-structured data
+Stable and Enduring
+4. *Flexibility* - Allow for easy adjustments in the logic and flow of questionnaires without extensive rework; ease of integration between front-end and back-end
+5. *Maintainability* - Modular and reusable; ease to maintain and extend codebase as business logic changes; enables dynamic nature of questions
+
 ## Architecture Overview
 
-The application is structured into two main components:
+**Backend:** Powered by FastAPI, the backend processes requests from the frontend, maintains the question flow logic, and interacts with the database.
 
-1. **Frontend:** Built with React and Redux, this component handles the user interface and interacts with the backend to fetch questions and submit answers.
+The backend is structured using a three-layer architecture:
 
-2. **Backend:** Powered by FastAPI, the backend processes requests from the frontend, maintains the question flow logic, and interacts with the database.
+1. **API Layer:** Handles HTTP requests and responses. It is responsible for routing, validation, and error handling. The API layer interacts with the service layer to process business logic.
+
+2. **Service Layer:** Contains the business logic of the application. This layer processes requests from the API layer, applies rules or logic, and coordinates data flow between the API and the data layer.
+
+3. **Data Layer:** Manages data storage and retrieval. This layer interacts with the database using SQLAlchemy ORM to execute CRUD operations and queries.
+
+**Frontend:** Built with React and Redux, this component handles the user interface and interacts with the backend to fetch questions and submit answers.
+
+- Leverage Redux to control the question flow and state updates.
+- Dispatch actions to fetch form configuration and submit responses.
+- Update the UI based on the current question and user interaction.
+- Use a dynamic form library `@rjsf/core` to render forms based on the schema from the backend.
 
 ## Technologies
 
@@ -18,14 +38,6 @@ The application is structured into two main components:
 - **Redux:** State management is handled using Redux, with asynchronous actions for fetching form configurations and submitting responses.
 
 ### Backend
-
-The backend is structured using a three-layer architecture:
-
-1. **API Layer:** Handles HTTP requests and responses. It is responsible for routing, validation, and error handling. The API layer interacts with the service layer to process business logic.
-
-2. **Service Layer:** Contains the business logic of the application. This layer processes requests from the API layer, applies rules or logic, and coordinates data flow between the API and the data layer.
-
-3. **Data Layer:** Manages data storage and retrieval. This layer interacts with the database using SQLAlchemy ORM to execute CRUD operations and queries.
 
 - **FastAPI:** Provides RESTful endpoints to serve questions and handle user responses.
 - **SQLAlchemy:** Used for ORM and database interactions.
@@ -116,6 +128,13 @@ DATABASE_URL=postgresql://<username>:<password>@<host>:<port>/questionnaire_db
 
 ```bash
 alembic upgrade head
+```
+
+5. Seed database with demo data
+
+```bash
+export PYTHONPATH=$(pwd)
+python utilities/seed.py
 ```
 
 ### Backend Setup

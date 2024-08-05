@@ -23,7 +23,13 @@ function DynamicForm() {
     }
   }, [currentFormId, dispatch]);
 
-  const handleSubmit = ({ formData }) => {
+  useEffect(() => {
+    if (userResponse) {
+      console.log('User response:', userResponse); // Log whenever userResponse changes
+    }
+  }, [userResponse]);
+
+  const handleSubmit = async ({ formData }) => {
     const questionId = parseInt(
       Object.keys(formData)[0].replace('question', '')
     ); // Extract integer ID
@@ -33,21 +39,24 @@ function DynamicForm() {
       response: response,
     };
 
-    console.log('Submitting payload:', payload); // Log the payload for debugging
-    dispatch(setUserResponse(payload)); // Set user response
-    dispatch(submitUserResponse(payload)).then(() => {
-      dispatch(fetchNextQuestion(payload)).then((result) => {
-        // Handle the result of fetching the next question
-        if (
-          result.payload &&
-          typeof result.payload === 'object' &&
-          result.payload.message
-        ) {
-          dispatch(setMessage(result.payload.message));
-          dispatch(clearFormConfig()); // Clear form config if no more questions
-        }
-      });
-    });
+    console.log('Submitting payload:', payload);
+    
+    // Await dispatch actions to ensure state updates before logging
+    await dispatch(setUserResponse(payload)); // Set user response
+
+    // Highlight: Awaiting dispatch actions for sequential updates
+    await dispatch(submitUserResponse(payload));
+    const result = await dispatch(fetchNextQuestion(payload));
+
+    // Handle the result of fetching the next question
+    if (
+      result.payload &&
+      typeof result.payload === 'object' &&
+      result.payload.message
+    ) {
+      dispatch(setMessage(result.payload.message));
+      dispatch(clearFormConfig()); // Clear form config if no more questions
+    }
   };
 
   if (message) {
