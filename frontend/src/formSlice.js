@@ -33,6 +33,24 @@ export const submitUserResponse = createAsyncThunk(
   }
 );
 
+// Fetch next question based on the response
+export const fetchNextQuestion = createAsyncThunk(
+  'form/fetchNextQuestion',
+  async ({ question_id, response }) => {
+    const res = await fetch(`http://localhost:8000/api/v1/next-question/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ question_id, response }),
+    });
+    if (!res.ok) {
+      throw new Error('Failed to fetch next question');
+    }
+    return res.json();
+  }
+);
+
 // Redux slice
 const formSlice = createSlice({
   name: 'form',
@@ -40,6 +58,7 @@ const formSlice = createSlice({
     currentFormId: 1,
     formConfig: null, // Initially null
     message: '',
+    userResponse: null, // Track the current user response
   },
   reducers: {
     setUserResponse(state, action) {
@@ -61,6 +80,28 @@ const formSlice = createSlice({
       })
       .addCase(submitUserResponse.rejected, (state) => {
         state.message = 'Failed to submit response';
+      })
+      .addCase(fetchNextQuestion.fulfilled, (state, action) => {
+        // Assume action.payload contains the new question structure
+        if (typeof action.payload === 'object' && action.payload.options) {
+          state.formConfig = {
+            title: 'Dynamic Questionnaire', // or any other title logic
+            fields: [
+              {
+                name: `question${action.payload.id}`,
+                type: 'string',
+                label: action.payload.text,
+                options: action.payload.options,
+              },
+            ],
+          };
+          state.message = '';
+        } else {
+          state.message = action.payload; // Handle any string response as a message
+        }
+      })
+      .addCase(fetchNextQuestion.rejected, (state) => {
+        state.message = 'Failed to fetch next question';
       });
   },
 });

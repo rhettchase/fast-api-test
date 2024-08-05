@@ -51,7 +51,7 @@ async def next_question(answer: AnswerCreate, db: Session = Depends(get_db)):
         return next_question
 
     # Return a string if there are no more questions or an invalid response
-    return {"message": next_question_id}
+    return next_question_id  # Assuming next_question_id is already a string message
 
 @router.get("/form-config/{question_id}")
 async def get_form_config(question_id: int, db: Session = Depends(get_db)):

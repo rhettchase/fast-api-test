@@ -5,18 +5,21 @@ import {
   fetchFormConfig,
   submitUserResponse,
   setUserResponse,
+  fetchNextQuestion,
 } from './formSlice';
 import validator from '@rjsf/validator-ajv8';
 
 function DynamicForm() {
   const dispatch = useDispatch();
-  const { currentFormId, formConfig, message } = useSelector(
+  const { currentFormId, formConfig, message, userResponse } = useSelector(
     (state) => state.form
   );
 
   useEffect(() => {
-    dispatch(fetchFormConfig(currentFormId));
-  }, [currentFormId, dispatch]);
+    if (!formConfig) {
+      dispatch(fetchFormConfig(currentFormId));
+    }
+  }, [currentFormId, dispatch, formConfig]);
 
   const handleSubmit = ({ formData }) => {
     const questionId = parseInt(
@@ -29,14 +32,17 @@ function DynamicForm() {
     };
 
     console.log('Submitting payload:', payload); // Log the payload for debugging
-    dispatch(submitUserResponse(payload));
+    dispatch(setUserResponse(payload)); // Set user response
+    dispatch(submitUserResponse(payload)).then(() => {
+      dispatch(fetchNextQuestion(payload)); // Fetch the next question based on the response
+    });
   };
 
   if (message) {
     return <div>{message}</div>;
   }
 
-  if (!formConfig) {
+  if (!formConfig || !formConfig.fields) {
     return <div>Loading...</div>;
   }
 
