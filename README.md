@@ -7,9 +7,9 @@ The purpose of this app is to demo the below architecture and test out building 
 1. *User experience* - Support responsive and intuitive user interface and dynamic questions; Accessibility Features baked in not bolted on, Mobile Friendly design easily achievable without major code refactor
 2. *Scalability* - Must handle 1 to n fields of information and more complex questions
 3. *Performance* - Cost efficient; enabling data consistency/validation and data retrieval; enables back-end logic to operate on clean and well-structured data
-Stable and Enduring
-4. *Flexibility* - Allow for easy adjustments in the logic and flow of questionnaires without extensive rework; ease of integration between front-end and back-end
-5. *Maintainability* - Modular and reusable; ease to maintain and extend codebase as business logic changes; enables dynamic nature of questions
+4. *Stable and Enduring* - long-term support and robust documentation
+5. *Flexibility* - Allow for easy adjustments in the logic and flow of questionnaires without extensive rework; ease of integration between front-end and back-end
+6. *Maintainability* - Modular and reusable; ease to maintain and extend codebase as business logic changes; enables dynamic nature of questions
 
 ## Architecture Overview
 
