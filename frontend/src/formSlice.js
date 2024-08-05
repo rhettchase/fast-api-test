@@ -96,8 +96,8 @@ const formSlice = createSlice({
             ],
           };
           state.message = '';
-        } else {
-          state.message = action.payload; // Handle any string response as a message
+        } else if (typeof action.payload === 'string') {
+          state.message = action.payload; // Set message when it's a string
         }
       })
       .addCase(fetchNextQuestion.rejected, (state) => {

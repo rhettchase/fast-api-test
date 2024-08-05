@@ -24,17 +24,21 @@ function DynamicForm() {
   const handleSubmit = ({ formData }) => {
     const questionId = parseInt(
       Object.keys(formData)[0].replace('question', '')
-    ); // Extract integer ID
-    const response = formData[`question${questionId}`]; // Access using template literal
+    );
+    const response = formData[`question${questionId}`];
     const payload = {
       question_id: questionId,
       response: response,
     };
 
-    console.log('Submitting payload:', payload); // Log the payload for debugging
-    dispatch(setUserResponse(payload)); // Set user response
+    console.log('Submitting payload:', payload);
+    dispatch(setUserResponse(payload));
     dispatch(submitUserResponse(payload)).then(() => {
-      dispatch(fetchNextQuestion(payload)); // Fetch the next question based on the response
+      dispatch(fetchNextQuestion(payload)).then((action) => {
+        if (typeof action.payload === 'string') {
+          dispatch({ type: 'form/setMessage', payload: action.payload });
+        }
+      });
     });
   };
 
