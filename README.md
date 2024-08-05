@@ -52,6 +52,41 @@ The backend is structured using a three-layer architecture:
 - **Pydantic**: Data validation and settings management using Python type annotations.
 - **PostgreSQL**: A powerful, open-source object-relational database system.
 
+## API Routes
+
+- **`POST /questions/`**
+
+  Creates a new question in the database.
+  - Request Body: JSON object containing the question text and options.
+  - Response: The created question object.
+
+- **`GET /questions/{question_id}`**
+
+  Retrieves a specific question by its ID.
+  - Response: The question object or a 404 error if not found.
+
+- **`GET /questions/`**
+
+  Retrieves all questions from the database.
+  - Response: A list of all question objects.
+
+- **`POST /answers/`**
+
+  Submits an answer for a specific question.
+  - Request Body: JSON object containing the question ID and the response.
+  - Response: The created answer object.
+
+- **`POST /next-question/`**
+
+  Determines the next question based on the current question ID and response.
+  - Request Body: JSON object containing the current question ID and the response.
+  - Response: The next question object or a message indicating the end of the questionnaire.
+
+- **`GET /form-config/{question_id}`**
+
+  Retrieves the form configuration for a specific question, including the schema used to render the form.
+  - Response: A JSON object containing the form configuration.
+
 ## Setup and Installation
 
 ### Prerequisites

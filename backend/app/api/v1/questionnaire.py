@@ -39,20 +39,6 @@ async def create_answer_api(request: Request, answer: AnswerCreate, db: Session 
     db_answer = save_answer(db, answer.question_id, answer.response)
     return db_answer
 
-# @router.post("/next-question/", response_model=Union[Question, str])
-# async def next_question(answer: AnswerCreate, db: Session = Depends(get_db)):
-#     service = QuestionnaireService(QUESTION_FLOW)
-#     next_question_id = service.get_next_question(answer.question_id, answer.response)
-
-#     if isinstance(next_question_id, int):
-#         next_question = get_question(db, next_question_id)
-#         if not next_question:
-#             raise HTTPException(status_code=404, detail="Next question not found")
-#         return next_question
-
-#     # Return a string if there are no more questions or an invalid response
-#     return next_question_id  # Assuming next_question_id is already a string message
-
 @router.post("/next-question/", response_model=Union[Question, dict])
 async def next_question(answer: AnswerCreate, db: Session = Depends(get_db)):
     next_question_id = questionnaire_service.get_next_question(answer.question_id, answer.response)
