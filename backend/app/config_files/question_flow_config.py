@@ -26,40 +26,44 @@ QUESTION_FLOW = {
             "message": "You're not eligible due to age"
         }
     ],
-    3: [
+    3: [  # Income-related question
         {
-            "condition": lambda response: response.lower() == "california",
+            "condition": lambda response: response == "Under $20,000" or response == "$20,000 - $50,000",
             "next": 4
         },
         {
-            "condition": lambda response: True,  # Default case for not living in California
-            "message": "You're not eligible due to location"
+            "condition": lambda response: response == "$50,000 - $100,000" or response == "$100,000+",
+            "next": 4  # Assume next step should be question 4
+        },
+        {
+            "condition": lambda response: True,  # Default case
+            "message": "You're not eligible due to income criteria"
         }
     ],
     4: [
         {
-            "condition": lambda response: response.lower() == "banana",
+            "condition": lambda response: response.lower() == "yes",
             "next": 5
         },
         {
-            "condition": lambda response: response.lower() == "apple",
+            "condition": lambda response: response.lower() == "no",
             "next": 6
         },
         {
             "condition": lambda response: True,  # Default case for any other response
-            "message": "You're not eligible due to fruit choice"
+            "message": "You're not eligible due to program interest"
         }
     ],
     5: [
         {
             "condition": lambda response: True,  # No further questions
-            "message": "Congratulations! You're eligible for the program."
+            "message": "Congratulations! You're eligible for the premium program."
         }
     ],
     6: [
         {
             "condition": lambda response: True,  # No further questions
-            "message": "Congratulations! You're eligible for the program."
+            "message": "Thank you for your interest! Check out our standard program."
         }
     ]
 }
