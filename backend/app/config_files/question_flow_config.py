@@ -68,7 +68,6 @@ QUESTION_FLOW = {
     ]
 }
 
-
 def get_next_question_id(question_id: int, response: Any) -> Union[int, str]:
     """
     Evaluate the rules for a given question and response.
