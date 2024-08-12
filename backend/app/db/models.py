@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, JSON
+from sqlalchemy import Column, Integer, String, ForeignKey, JSON, Text
 from sqlalchemy.orm import relationship, declarative_base
 
 Base = declarative_base()
@@ -18,3 +18,13 @@ class Answer(Base):
     question = relationship("Question", back_populates="answers")
 
 Question.answers = relationship("Answer", order_by=Answer.id, back_populates="question")
+
+# Define the Rule model
+class Rule(Base):
+    __tablename__ = 'rules'
+    
+    id = Column(Integer, primary_key=True, index=True)
+    question_id = Column(Integer, index=True)
+    condition = Column(Text, nullable=False)
+    next_question_id = Column(Integer, nullable=True)
+    message = Column(String, nullable=True)

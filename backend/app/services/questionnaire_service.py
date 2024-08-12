@@ -3,38 +3,32 @@ from ..db import repository
 from ..schemas.questionnaire import QuestionCreate, AnswerCreate
 from app.config_files.question_flow_config import get_next_question_id
 from typing import Union, Any
+from ..db.models import Rule
 
 class QuestionnaireService:
-    def __init__(self):
-        pass
+    def __init__(self, db: Session):
+        self.db = db
+
+    def get_rules_for_question(self, question_id: int):
+        return self.db.query(Rule).filter(Rule.question_id == question_id).all()
 
     def get_next_question(self, question_id: int, response: Any) -> Any:
-        """
-        Determine the next question based on the current question ID and response.
+        rules = self.get_rules_for_question(question_id)
+        for rule in rules:
+            if self.evaluate_condition(rule.condition, response):
+                if rule.next_question_id is not None:
+                    return rule.next_question_id
+                if rule.message:
+                    return {"message": rule.message}
+        return {"message": "No valid rule found"}
 
-        :param question_id: Current question ID
-        :param response: User's response to the question
-        :return: Next question ID or a message
-        """
-        next_question = get_next_question_id(question_id, response)
-        
-        if isinstance(next_question, dict) and "message" in next_question:
-            return next_question
-        
-        return next_question
-    
-# class QuestionnaireService:
-#     def __init__(self, question_flow: dict):
-#         self.question_flow = question_flow
-
-#     def get_next_question(self, current_question_id: int, response: str) -> Union[int, str]:
-#         # Retrieve the mapping for the current question
-#         question_mapping = self.question_flow.get(current_question_id, {})
-
-#         # Determine the next step based on the response
-#         if response in question_mapping:
-#             return question_mapping[response]  # Return the next question ID or message
-#         return question_mapping.get("default", "No further questions")
+    def evaluate_condition(self, condition: str, response: str) -> bool:
+        try:
+            local_scope = {"response": response.lower()}
+            return eval(condition, {}, local_scope)
+        except Exception as e:
+            # Add logging for debugging purposes
+            return False
 
 def create_question(db: Session, question: QuestionCreate):
     return repository.create_question(db, question.text, question.options)

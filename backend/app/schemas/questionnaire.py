@@ -30,3 +30,23 @@ class Answer(AnswerBase):
     id: int
 
     model_config = ConfigDict(from_attributes=True)
+    
+# New RuleBase schema
+class RuleBase(BaseModel):
+    question_id: int
+    condition: str
+    next_question_id: Union[int, None] = None
+    message: Union[str, None] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+# RuleCreate schema
+class RuleCreate(RuleBase):
+    pass
+
+# Rule schema
+class Rule(RuleBase):
+    id: int
+
+    model_config = ConfigDict(from_attributes=True)
