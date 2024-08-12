@@ -4,6 +4,9 @@ from ..schemas.questionnaire import QuestionCreate, AnswerCreate
 from app.config_files.question_flow_config import get_next_question_id
 from typing import Union, Any
 from ..db.models import Rule
+import logging
+
+logger = logging.getLogger(__name__)
 
 class QuestionnaireService:
     def __init__(self, db: Session):
@@ -24,11 +27,15 @@ class QuestionnaireService:
 
     def evaluate_condition(self, condition: str, response: str) -> bool:
         try:
-            local_scope = {"response": response.lower()}
-            return eval(condition, {}, local_scope)
+            local_scope = {"response": response}
+            result = eval(condition, {}, local_scope)
+            logger.info(f"Evaluating condition: {condition} with response: {response} => Result: {result}")
+            return result
         except Exception as e:
-            # Add logging for debugging purposes
+            logger.error(f"Error evaluating condition: {condition} with response: {response}. Error: {e}")
             return False
+
+
 
 def create_question(db: Session, question: QuestionCreate):
     return repository.create_question(db, question.text, question.options)
