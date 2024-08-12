@@ -3,7 +3,9 @@ from sqlalchemy.orm import Session
 from ..db import repository
 from ..schemas.questionnaire import QuestionCreate, AnswerCreate
 from typing import Union, Any
+import logging
 
+logger = logging.getLogger(__name__)
 
 class QuestionnaireService:
     def __init__(self, rules_file: str = 'data/questionnaire_rules.csv'):
@@ -12,46 +14,49 @@ class QuestionnaireService:
     def load_rules_from_csv(self, rules_file: str) -> dict:
         """
         Load questionnaire rules from a CSV file.
-
-        :param rules_file: Path to the CSV file containing the rules.
-        :return: A dictionary mapping question IDs to their respective rules.
         """
         rules = {}
         with open(rules_file, 'r') as file:
             reader = csv.DictReader(file)
             for row in reader:
                 question_id = int(row['question_id'])
-                condition = row['condition'].strip()
+                condition = row['condition'].strip().lower()
                 next_question_id = row['next_question_id'].strip() if row['next_question_id'] else None
                 message = row['message'].strip() if row['message'] else None
 
-                # Add rule to the dictionary
+                if next_question_id and next_question_id.isdigit():
+                    next_question_id = int(next_question_id)
+
                 if question_id not in rules:
                     rules[question_id] = []
 
                 rules[question_id].append({
                     "condition": condition,
-                    "next_question_id": int(next_question_id) if next_question_id else None,
+                    "next_question_id": next_question_id,
                     "message": message
                 })
 
         return rules
 
-    def get_next_question(self, question_id: int, response: Any) -> Union[int, dict]:
+    def evaluate_condition(self, condition: str, response: str) -> bool:
+        """
+        Safely evaluate a condition string with the given response.
+        """
+        response = response.lower()
+        if condition == "true":
+            return True
+        return condition == response
+
+    def get_next_question(self, question_id: int, response: Any) -> Any:
         """
         Determine the next question based on the current question ID and response.
-
-        :param question_id: Current question ID
-        :param response: User's response to the question
-        :return: Next question ID or a dictionary with a message
         """
         rules = self.rules.get(question_id, [])
-        response = response.lower()  # Normalize response for matching
+        response = response.lower()
 
         for rule in rules:
-            condition = rule["condition"].lower()
-            if condition == response or condition == "true":
-                if rule["next_question_id"]:
+            if self.evaluate_condition(rule["condition"], response):
+                if rule["next_question_id"] is not None:
                     return rule["next_question_id"]
                 if rule["message"]:
                     return {"message": rule["message"]}

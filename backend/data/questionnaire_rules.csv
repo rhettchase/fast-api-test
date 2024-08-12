@@ -6,10 +6,12 @@ question_id,condition,next_question_id,message
 2,35-44,3,
 2,45+,3,
 2,Under 18,,You're not eligible due to age
-3,california,4,
-3,True,,You're not eligible due to location
-4,banana,5,
-4,apple,6,
-4,True,,You're not eligible due to fruit choice
-5,True,,Congratulations! You're eligible for the program.
+3,"under $20,000",,You're not eligible due to income
+3,True,4,
+4,yes,5,You're eligible for the premium program, here are some benefits...
+4,no,5,You're eligible for the basic program, here are some benefits...
+5,apple,6,
+5,banana,7,
+5,True,,You're not eligible due to fruit choice
 6,True,,Congratulations! You're eligible for the program.
+7,True,,Congratulations! You're eligible for the program.
